@@ -21,7 +21,7 @@ public interface TwoDimMap<X,Y,V> {
 	
 	public V remove(X x,Y y);
 	
-	public boolean isContainV(X x,Y y);
+	public boolean isContain(X x,Y y);
 	
 	public void clear();
 	

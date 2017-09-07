@@ -4,8 +4,25 @@ import java.util.Collection;
 
 import com.zwp.flyz.interfaces.TwoDimMap;
 
+
+
+/**
+ * 
+ * @author zwp12
+ *
+ * @param <X> the type of  key1 
+ * @param <Y> the type of  key2
+ * @param <V> the type of value
+ * 
+ * 
+ */
 public abstract class AbstractTwoDimMap<X, Y, V> implements TwoDimMap<X, Y, V> {
 
+	/**
+	 * if x==null or y == null : return null;
+	 * if isContain() == false : return null
+	 * 
+	 */
 	public V get(X x, Y y) {
 		// TODO Auto-generated method stub
 		return null;
@@ -26,24 +43,32 @@ public abstract class AbstractTwoDimMap<X, Y, V> implements TwoDimMap<X, Y, V> {
 		return null;
 	}
 
-	public boolean isContainV(X x, Y y) {
+	public boolean isContain(X x, Y y) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	/**
+	 * 
+	 */
 	public void clear() {
-		// TODO Auto-generated method stub
-		
+		entrySet().clear();
 	}
 
+	/**
+	 * @return 返回所有条目
+	 */
 	public int size() {
-		// TODO Auto-generated method stub
-		return 0;
+		
+		return entrySet().size();
 	}
 
+	/**
+	 * @return size()==0 
+	 */
 	public boolean isEmpty() {
-		// TODO Auto-generated method stub
-		return false;
+		
+		return size()==0;
 	}
 
 	public Collection<V> values() {

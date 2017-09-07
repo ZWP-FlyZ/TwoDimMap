@@ -1,6 +1,7 @@
 package com.zwp.flyz.abstractclass;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 import com.zwp.flyz.interfaces.TwoDimMap;
 
@@ -19,27 +20,86 @@ import com.zwp.flyz.interfaces.TwoDimMap;
 public abstract class AbstractTwoDimMap<X, Y, V> implements TwoDimMap<X, Y, V> {
 
 	/**
-	 * if x==null or y == null : return null;
-	 * if isContain() == false : return null
+	 * if x==null or y == null : return null;<br>
+	 * if isContain(x,y) == false : return null;<br>
+	 * other : return V(x,y); // V(x,y)==null is OK;<br>
+	 * 
+	 * @throws NullPointerException
 	 * 
 	 */
 	public V get(X x, Y y) {
-		// TODO Auto-generated method stub
+		if(x==null||y==null) return null;
+		Iterator<TwoDimEntry<X, Y, V>> iterator = entrySet().iterator();
+		TwoDimEntry<X, Y, V> tmp = null;
+		while(iterator.hasNext()){
+			tmp = iterator.next();
+			if(x.equals(tmp.getX())&&
+					y.equals(tmp.getY()))
+				return tmp.getValue();
+		}
 		return null;
 	}
 
+	
+	
+	
+	/**
+	 * if x==null or y == null : return defV;<br>
+	 * if isContain(x,y) == false : return defV;<br>
+	 * other : return V(x,y); // V(x,y)==null is OK;<br>
+	 * 
+	 * 
+	 * @throws NullPointerException
+	 * 
+	 */
 	public V get(X x, Y y, V defV) {
-		// TODO Auto-generated method stub
-		return null;
+		if(x==null||y==null) return defV;
+		Iterator<TwoDimEntry<X, Y, V>> iterator = entrySet().iterator();
+		TwoDimEntry<X, Y, V> tmp = null;
+		while(iterator.hasNext()){
+			tmp = iterator.next();
+			if(x.equals(tmp.getX())&&
+					y.equals(tmp.getY()))
+				return tmp.getValue();
+		}
+		return defV;
 	}
-
+	
+	
+	
+	
+	
+	/**
+	 * 
+	 * WARN: throws UnsupportedOperationException
+	 * 
+	 * 
+	 * @throws NullPointerException
+	 * @throws UnsupportedOperationException
+	 * 
+	 */
+	
 	public V put(X x, Y y, V v) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Override put()!");
 	}
 
+	
+	/**
+	 * 
+	 * 
+	 * 
+	 * if x==null or y == null : return null;<br>
+	 * if isContain(x,y) == false : return null;<br>
+	 * other : remove V(x,y)  and return V(x,y); // V(x,y)==null is OK;<br>
+	 * 
+	 * 
+	 * @throws NullPointerException
+	 * @throws UnsupportedOperationException
+	 * 
+	 */
+	
 	public V remove(X x, Y y) {
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 
@@ -81,10 +141,7 @@ public abstract class AbstractTwoDimMap<X, Y, V> implements TwoDimMap<X, Y, V> {
 		return null;
 	}
 
-	public Collection<TwoDimEntry<X, Y, V>> entrySet() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public abstract Collection<TwoDimEntry<X, Y, V>> entrySet();
 
 	@Override
 	public int hashCode() {

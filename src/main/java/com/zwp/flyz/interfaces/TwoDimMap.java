@@ -1,6 +1,7 @@
 package com.zwp.flyz.interfaces;
 
 import java.util.Collection;
+import java.util.Set;
 
 /**
  * 
@@ -31,7 +32,7 @@ public interface TwoDimMap<X,Y,V> {
 	
 	public Collection<V> values();
 	
-	public Collection<TwoDimKey<X,Y>> keySet();
+	public Set<TwoDimKey<X,Y>> keySet();
 	
 	public Collection<TwoDimEntry<X,Y,V>> entrySet();
 	
@@ -39,7 +40,9 @@ public interface TwoDimMap<X,Y,V> {
 	
 	public interface TwoDimKey<X,Y>{
 		X getX();
+		void setX(X x);
 		Y getY();
+		void setY(Y y);
 	}
 	
 	public interface Entry<K,V>{
@@ -51,6 +54,12 @@ public interface TwoDimMap<X,Y,V> {
 		X getX();
 		Y getY();
 		V getValue();
+		
+		void setX();
+		void setY();
+		void setValue();	
+		
+		
 	}
 
 }

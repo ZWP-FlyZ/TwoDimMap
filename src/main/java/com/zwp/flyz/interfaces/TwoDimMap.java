@@ -31,7 +31,11 @@ public interface TwoDimMap<X,Y,V> {
 	
 	public Collection<V> values();
 	
-	public Collection<TwoDimKey<X,Y>> keys();
+	public Collection<TwoDimKey<X,Y>> keySet();
+	
+	public Collection<TwoDimEntry<X,Y,V>> entrySet();
+	
+	public boolean equals(Object o);
 	
 	public interface TwoDimKey<X,Y>{
 		X getX();

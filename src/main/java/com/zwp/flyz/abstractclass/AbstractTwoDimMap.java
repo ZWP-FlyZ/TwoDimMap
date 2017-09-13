@@ -13,7 +13,7 @@ import com.zwp.flyz.interfaces.TwoDimMap;
 
 /**
  * 
- * @author zwp12
+ * @author zwp-flyz
  *
  * @param <X> the type of  key1 
  * @param <Y> the type of  key2
@@ -31,7 +31,7 @@ public abstract class AbstractTwoDimMap<X, Y, V> implements TwoDimMap<X, Y, V> {
 	 * @throws NullPointerException
 	 * 
 	 */
-	public V get(X x, Y y) {
+	public V get(Object x, Object y) {
 		if(x==null||y==null) return null;
 		Iterator<TwoDimEntry<X, Y, V>> iterator = entrySet().iterator();
 		TwoDimEntry<X, Y, V> tmp = null;
@@ -56,7 +56,7 @@ public abstract class AbstractTwoDimMap<X, Y, V> implements TwoDimMap<X, Y, V> {
 	 * @throws NullPointerException
 	 * 
 	 */
-	public V get(X x, Y y, V defV) {
+	public V get(Object x, Object y, V defV) {
 		if(x==null||y==null) return defV;
 		Iterator<TwoDimEntry<X, Y, V>> iterator = entrySet().iterator();
 		TwoDimEntry<X, Y, V> tmp = null;
@@ -102,7 +102,7 @@ public abstract class AbstractTwoDimMap<X, Y, V> implements TwoDimMap<X, Y, V> {
 	 * 
 	 */
 	
-	public V remove(X x, Y y) {
+	public V remove(Object x, Object y) {
 		
 		if(x==null||y==null) return null;
 		Iterator<TwoDimEntry<X,Y,V>> it = entrySet().iterator();
@@ -133,7 +133,7 @@ public abstract class AbstractTwoDimMap<X, Y, V> implements TwoDimMap<X, Y, V> {
 	 * 
 	 * 
 	 */
-	public boolean isContain(X x, Y y) {
+	public boolean isContain(Object x, Object y) {
 		if(x==null||y==null) return false;
 		Iterator<TwoDimEntry<X, Y, V>> iterator = entrySet().iterator();
 		TwoDimEntry<X, Y, V> tmp = null;
@@ -173,7 +173,7 @@ public abstract class AbstractTwoDimMap<X, Y, V> implements TwoDimMap<X, Y, V> {
 	/**
 	 * the template for keySet and value
 	 */
-    private transient volatile AbstractSet<com.zwp.flyz.interfaces.TwoDimMap.TwoDimKey<X, Y>>  keySet;
+    private transient volatile AbstractSet<TwoDimKey<X, Y>>  keySet;
     private transient volatile Collection<V> values;
 	
 	public Collection<V> values() {
@@ -219,10 +219,8 @@ public abstract class AbstractTwoDimMap<X, Y, V> implements TwoDimMap<X, Y, V> {
 						}
 
 						public TwoDimKey<X, Y> next() {
-							TwoDimKey<X, Y> td = new TwoDimKeyImp<X, Y>();
 							TwoDimEntry<X,Y,V> tmp = i.next();
-							td.setX(tmp.getX());
-							td.setY(tmp.getY());
+							TwoDimKey<X, Y> td = new TwoDimKeyImp<X, Y>(tmp.getX(),tmp.getY());
 							return td;
 						}
 
@@ -248,48 +246,137 @@ public abstract class AbstractTwoDimMap<X, Y, V> implements TwoDimMap<X, Y, V> {
 
 	@Override
 	public int hashCode() {
-		// TODO Auto-generated method stub
-		return super.hashCode();
+		int hash = 0;
+		Iterator<TwoDimEntry<X, Y, V>> i = entrySet().iterator();
+		while(i.hasNext()){
+			hash+=i.next().hashCode();
+		}
+		return hash;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		// TODO Auto-generated method stub
-		return super.equals(obj);
+		if(this==obj) return true;
+		if(!( obj instanceof TwoDimMap) ) return false;
+		
+		try {
+			
+			TwoDimMap<?,?,?> map = (TwoDimMap<?,?,?>)obj;
+			if(map.size()!=this.size()) return false;
+			Iterator<TwoDimEntry<X,Y,V>> iterator = entrySet().iterator();
+			TwoDimEntry<X,Y,V> entry = null;
+			X tx = null;
+			Y ty = null;
+			V tv = null;
+			
+			while(iterator.hasNext()){
+				entry = iterator.next();
+				tx = entry.getX();
+				ty = entry.getY();
+				tv = entry.getValue();
+				if(!map.isContain(tx, ty)) return false;
+				map.get(tx, ty);
+				
+				if(tv==null){
+					if(!map.isContain(tx, ty)||map.get(tx, ty)!=null)
+						return false;	
+				}else{
+					if(!tv.equals(map.get(tx, ty)))  return false;
+					
+				}		
+			}	
+		}  catch (ClassCastException unused) {
+            return false;
+        } catch (NullPointerException unused) {
+            return false;
+        }
+        return true;
 	}
-
+	
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
-		// TODO Auto-generated method stub
-		return super.clone();
+		AbstractTwoDimMap<?, ?, ?> map = (AbstractTwoDimMap<?, ?, ?>)super.clone();
+		map.keySet =null;
+		map.values =null;
+		return map;
 	}
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
-		return super.toString();
+		Iterator<TwoDimEntry<X,Y,V>> iterator = entrySet().iterator();
+		if(iterator.hasNext()) return "{}";
+		StringBuffer sb = new StringBuffer();
+		sb.append("{ ");
+		TwoDimEntry<X,Y,V> tde = null;
+		while(true){
+			tde = iterator.next();
+			sb.append("(").
+				append(tde.getX()).
+				append(",").
+				append(tde.getY()).
+				append(")");
+			sb.append("->").append(tde.getValue());
+			sb.append(" ");
+			if(iterator.hasNext()){
+				sb.append("}");
+				return sb.toString();
+			}	
+		}
+		
 	}
 
 
 	public static class TwoDimKeyImp<X,Y> implements TwoDimKey<X, Y>,Serializable{
 
-		private static final long serialVersionUID = 12377777L;
-		private X x;
-		private Y y;
+		private static final long serialVersionUID = -3391093777123254603L;
+		private final X x;
+		private final Y y;
+		public TwoDimKeyImp(X x,Y y){
+			this.x = x;
+			this.y = y;
+		}
 		public X getX() {
 			return x;
 		}
-		public void setX(X x) {
-			this.x = x;
-		}
+
 		public Y getY() {
 			return y;
 		}
-		public void setY(Y y) {
+	
+	}
+	
+	public static class TwoDimEntryImp<X,Y,V> implements TwoDimEntry<X, Y, V>,Serializable{
+
+		private static final long serialVersionUID = -3053363433555884934L;
+		
+		private final X x;
+		private final Y y;
+		private V v;
+		
+		public TwoDimEntryImp(X x,Y y,V v){
+			this.x = x;
 			this.y = y;
+			this.v = v;
 		}
-		
-		
+		public X getX() {
+			// TODO Auto-generated method stub
+			return x;
+		}
+
+		public Y getY() {
+			// TODO Auto-generated method stub
+			return y;
+		}
+
+		public V getValue() {
+			return v;
+		}
+
+		public V setValue(V v) {
+			V ov = this.v;
+			this.v = v;
+			return ov;
+		}
 
 		
 	}

@@ -14,15 +14,15 @@ import java.util.Set;
 
 public interface TwoDimMap<X,Y,V> {
 	
-	public V get(X x,Y y);
+	public V get(Object x,Object y);
 	
-	public V get(X x,Y y, V defV);
+	public V get(Object x,Object y, V defV);
 	
 	public V put(X x,Y y,V v);
 	
-	public V remove(X x,Y y);
+	public V remove(Object x,Object y);
 	
-	public boolean isContain(X x,Y y);
+	public boolean isContain(Object x,Object y);
 	
 	public void clear();
 	
@@ -40,9 +40,7 @@ public interface TwoDimMap<X,Y,V> {
 	
 	public interface TwoDimKey<X,Y>{
 		X getX();
-		void setX(X x);
 		Y getY();
-		void setY(Y y);
 	}
 	
 	public interface Entry<K,V>{
@@ -55,9 +53,7 @@ public interface TwoDimMap<X,Y,V> {
 		Y getY();
 		V getValue();
 		
-		void setX();
-		void setY();
-		void setValue();	
+		V setValue(V v);	
 		
 		
 	}

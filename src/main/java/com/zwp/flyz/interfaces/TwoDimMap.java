@@ -5,11 +5,10 @@ import java.util.Set;
 
 /**
  * 
- * @author zwp12
- *
- * @param <X>
- * @param <Y>
- * @param <V>
+ * @author zwp-flyz
+ * @Date 2017年9月7日
+ * @version 1.0
+ * 
  */
 
 public interface TwoDimMap<X,Y,V> {

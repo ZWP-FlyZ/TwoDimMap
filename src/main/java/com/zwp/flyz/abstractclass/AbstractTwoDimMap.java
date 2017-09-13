@@ -9,17 +9,14 @@ import java.util.Set;
 
 import com.zwp.flyz.interfaces.TwoDimMap;
 
-
-
 /**
  * 
  * @author zwp-flyz
- *
+ * @Date 2017年9月7日
+ * @version 1.0
  * @param <X> the type of  key1 
  * @param <Y> the type of  key2
  * @param <V> the type of value
- * 
- * 
  */
 public abstract class AbstractTwoDimMap<X, Y, V> implements TwoDimMap<X, Y, V> {
 

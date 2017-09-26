@@ -1,6 +1,6 @@
 package test;
 
-import static org.junit.Assert.*;
+import java.util.HashMap;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -11,6 +11,7 @@ public class HashTwoDimMapTest {
 
 	
 	HashTwoDimMap<Integer,Integer,Integer> map;
+	HashMap<Integer,Integer> hMap; 
 	
 	@Before
 	public void before(){
@@ -23,7 +24,10 @@ public class HashTwoDimMapTest {
 	public void test() {
 		//fail("Not yet implemented");
 		map = new HashTwoDimMap<Integer,Integer,Integer>();
-		for(int i=0;i<20;i++){
+		hMap = new HashMap<Integer, Integer>();
+		for(int i=0;i<7;i++){
+			hMap.put(i, i);
+			hMap.put(i+16, i);
 			map.put(1, i, i);
 //			map.put(i%10, i, i);
 			map.put(1, i+16, i);

@@ -242,7 +242,7 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 			p.value = v;
 			return ov;//return old value;
 		}
-		if( ++sy.sizeY >= sy.thresholdY)
+		if( ++sy.sizeY > sy.thresholdY)
 			resizeY(indexX);
 		
 		
@@ -326,7 +326,17 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 					p = oHead;
 					nHead = nTail = pre =null;
 					while(p!=null){
-						if((p.hashY & nCapY)==1){
+						if((p.hashY & oCapY)!=0){
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
 							if(pre==null)
 								oHead = p.next;
 							else
@@ -340,9 +350,10 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 							}//end else
 						}//end if p.hashY
 						else
-							pre = p;//change the pre if don't rehash
+							pre = p;//change the pre if don't rehash,error hear
 						p = p.next;
 					}//end while p
+					//if(pre==null) oHead = null;
 					nTableY[i] = oHead;
 					nTableY[i+oCapY] = nHead;
 					if(nTail!=null) nTail.next=null;

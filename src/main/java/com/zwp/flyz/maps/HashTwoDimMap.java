@@ -37,7 +37,7 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 	 * default load factory of X and load factory of y 
 	 * 
 	 */
-	static final float DEFAULT_LOAD_FACTOR_X = 1.0f;
+	static final float DEFAULT_LOAD_FACTOR_X = 0.9375f;
 	static final float DEFAULT_LOAD_FACTOR_Y = 0.75f;
 	
 	/**
@@ -175,26 +175,86 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 		return o.hashCode();
 	}
 	
+	/**
+	 * the number of all key-value
+	 */
+	@Override
+	public int size(){
+		return size;
+	}
 	
 	
+	/**
+	 * if x==null or y == null : return null;<br>
+	 * if isContain(x,y) == false : return null;<br>
+	 * other : return V(x,y); // V(x,y)==null is OK;<br>
+	 * 
+	 * @throws NullPointerException
+	 */
+	public V get(Object x, Object y) {
+		if(x==null||y==null) return null;
+		Node<X,Y,V> tmp = getNode(hash(x),hash(y),x,y);
+		return tmp==null?null:tmp.value;
+	}
+
+	/**
+	 * if x==null or y == null : return defV;<br>
+	 * if isContain(x,y) == false : return defV;<br>
+	 * other : return V(x,y); // V(x,y)==null is OK;<br>
+	 * @throws NullPointerException
+	 * 
+	 */
+	public V get(Object x, Object y, V defV) {
+		if(x==null||y==null) return null;
+		Node<X,Y,V> tmp = getNode(hash(x),hash(y),x,y);
+		return tmp==null?defV:tmp.value;
+	}
+
+	@Override
+	public boolean isContain(Object x, Object y) {
+		if(x==null||y==null) return false;
+		return getNode(hash(x),hash(y),x,y)!=null;
+	}
+	
+	final Node<X,Y,V> getNode(int hashX,int hashY,Object x, Object y){
+		Node<X,Y,V>[][] tabX;Node<X,Y,V>[] tabY;Node<X,Y,V>p;
+		int capX;
+		tabX = tableX;capX = tabX.length;
+		if((tabY=tabX[hashX & (capX -1)])==null) return null;
+		if((p=tabY[hashY & (tabY.length -1)])==null) return null;
+		while(p!=null){
+			if( (p.hashX==hashX && p.hashY == hashY) && 
+					(p.x == x || p.x.equals(x)) && 
+					(p.y == y || p.y.equals(y)))
+			  break;
+		}
+		return p;
+	}
+	
+
+	@Override
+	public boolean isEmpty() {
+		return size==0;
+	}
+
 	@Override
 	public V put(X x, Y y, V v) {
+		if(x==null||y==null) return null;
 		return putVal(hash(x),hash(y),x,y,v);
 	}
 
 	final V putVal(int hashX,int hashY,X x,Y y,V v){
-
 		int capX ,indexX;
 		Node<X,Y,V>[][]tabX = tableX;
 		V oV = null;
-		boolean isYNull = false;
 		if(tabX==null||tabX.length==0)
 			tabX = resizeX();
 		capX = tabX.length;
 		indexX = hashX & (capX-1);
-		isYNull = (tabX[indexX]==null);
+		if((tabX[indexX]==null)) sizeX++;
 		oV = putValY(indexX,hashX,hashY,x,y,v);
-		if(isYNull && ++sizeX >= thresholdX)//maybe something is wrong here,if set loadFactor = 1.0.
+		
+		if(sizeX >= thresholdX)//maybe something is wrong here,if set loadFactor = 1.0.
 			resizeX();
 		return oV;
 	}
@@ -242,6 +302,7 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 			p.value = v;
 			return ov;//return old value;
 		}
+		size++;
 		if( ++sy.sizeY > sy.thresholdY)
 			resizeY(indexX);
 		return null;
@@ -263,7 +324,8 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 			tabY = resizeY(indexX);
 		capY = tabY.length;
 		indexY = node.hashY & (capY-1);
-		node.next =  tabY[indexY];//change nodes' order here!!
+		if((node.next=tabY[indexY])==null)//change nodes' order here!!
+				sizeX++;
 		tabY[indexY] = node;
 
 		if( ++sy.sizeY > sy.thresholdY)
@@ -317,6 +379,7 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 									ys[j]=p.next;
 								else
 									pre.next = p.next;
+								nStatusY[i].sizeY--;
 								setNodeY(i+oCapX,p);
 							}else
 								pre = p;
@@ -389,7 +452,6 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 					nTableY[i] = oHead;
 					nTableY[i+oCapY] = nHead;
 					if(nTail!=null) nTail.next=null;
-					oTableY= null;
 				}//end if oHead
 			}//end for
 		}
@@ -403,6 +465,7 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 	final StatusY newStatusY(){
 		return new StatusY();
 	}
+	
 	
 	
 	@Override

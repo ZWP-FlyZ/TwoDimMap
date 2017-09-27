@@ -266,8 +266,7 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 	@Override
 	public void clear() {
 		if(size!=0 && tableX!=null){
-			size=0;
-			sizeX = 0;
+			size=sizeX=0;
 			for(int i=0;i<tableX.length;i++){
 				tableX[i]=null;
 				statusY[i]=null;

@@ -194,13 +194,13 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 		indexX = hashX & (capX-1);
 		isYNull = (tabX[indexX]==null);
 		oV = putValY(indexX,hashX,hashY,x,y,v);
-		if(isYNull && ++sizeX >= thresholdX)
+		if(isYNull && ++sizeX >= thresholdX)//maybe something is wrong here,if set loadFactor = 1.0.
 			resizeX();
 		return oV;
 	}
 	
 	/**
-	 * 
+	 * put a new value into map
 	 * @param indexX the index 
 	 * @param hashX the hash of key-x
 	 * @param hashY the hash of key-y
@@ -244,10 +244,33 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 		}
 		if( ++sy.sizeY > sy.thresholdY)
 			resizeY(indexX);
-		
-		
 		return null;
 	}
+	
+	
+	/**
+	 * put  Node into map 
+	 * @param indexX
+	 * @param node
+	 */
+	final void setNodeY(int indexX , Node<X,Y,V> node){
+		int capY,indexY;
+		Node<X,Y,V>[] tabY = tableX[indexX];
+		StatusY sy ;
+		if((sy = statusY[indexX])==null)
+			sy =statusY[indexX] = newStatusY();
+		if(tabY==null||tabY.length == 0)
+			tabY = resizeY(indexX);
+		capY = tabY.length;
+		indexY = node.hashY & (capY-1);
+		node.next =  tabY[indexY];//change nodes' order here!!
+		tabY[indexY] = node;
+
+		if( ++sy.sizeY > sy.thresholdY)
+			resizeY(indexX);
+	
+	}
+	
 	
 	/**
 	 * resize for X
@@ -281,7 +304,26 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 		if(oTableX!=null){
 			// rehash here
 			System.arraycopy(oStatuY, 0, nStatusY, 0, oStatuY.length);//copy the status
-			
+			System.arraycopy(oTableX, 0, nTableX, 0, oTableX.length);//copy the tabx
+			Node<X,Y,V>[] ys ;
+			Node<X,Y,V> p,pre = null;
+			for(int i=0;i<oCapX;i++){
+				if((ys=nTableX[i])==null) continue;
+					for(int j=0;j<ys.length;j++){
+						if((p=ys[j])==null) continue;
+						while(p!=null){
+							if((p.hashX&oCapX)!=0){
+								if(pre==null)
+									ys[j]=p.next;
+								else
+									pre.next = p.next;
+								setNodeY(i+oCapX,p);
+							}else
+								pre = p;
+							p = p.next;
+						}//end while
+					}//end for j
+			}//end for i
 		}
 		
 		return nTableX;
@@ -327,16 +369,6 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 					nHead = nTail = pre =null;
 					while(p!=null){
 						if((p.hashY & oCapY)!=0){
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
 							if(pre==null)
 								oHead = p.next;
 							else
@@ -350,16 +382,16 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 							}//end else
 						}//end if p.hashY
 						else
-							pre = p;//change the pre if don't rehash,error hear
+							pre = p;//change the pre if don't rehash
 						p = p.next;
 					}//end while p
 					//if(pre==null) oHead = null;
 					nTableY[i] = oHead;
 					nTableY[i+oCapY] = nHead;
 					if(nTail!=null) nTail.next=null;
+					oTableY= null;
 				}//end if oHead
 			}//end for
-			
 		}
 		return nTableY;	
 	}

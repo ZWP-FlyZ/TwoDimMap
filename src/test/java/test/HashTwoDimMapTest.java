@@ -25,12 +25,12 @@ public class HashTwoDimMapTest {
 		//fail("Not yet implemented");
 		map = new HashTwoDimMap<Integer,Integer,Integer>();
 		hMap = new HashMap<Integer, Integer>();
-		for(int i=0;i<7;i++){
+		for(int i=0;i<16;i++){
 			hMap.put(i, i);
 			hMap.put(i+16, i);
-			map.put(1, i, i);
+			map.put(i, i, i);
 //			map.put(i%10, i, i);
-			map.put(1, i+16, i);
+			map.put(i+16, i+16, i);
 		}
 		System.err.println();
 	}

@@ -91,9 +91,6 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 			return true;
 		}
 		
-		
-		
-		
 	}
 	
 	static class StatusY{
@@ -227,10 +224,57 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 					(p.x == x || p.x.equals(x)) && 
 					(p.y == y || p.y.equals(y)))
 			  break;
+			p=p.next;
 		}
 		return p;
 	}
 	
+	
+	
+
+	@Override
+	public V remove(Object x, Object y) {
+		// TODO Auto-generated method stub
+		if(x==null||y==null) return null;
+		Node<X,Y,V> tmp = removeNode(hash(x),hash(y),x,y);
+		return tmp==null?null:tmp.value;
+	}
+	
+	final Node<X,Y,V> removeNode(int hashX,int hashY,Object x, Object y){
+		Node<X,Y,V>[][] tabX;Node<X,Y,V>[] tabY;Node<X,Y,V>p,pre=null;
+		int capX,indexY;
+		tabX = tableX;capX = tabX.length;
+		if((tabY=tabX[hashX & (capX -1)])==null) return null;
+		if((p=tabY[indexY = hashY & (tabY.length -1)])==null) return null;
+		while(p!=null){
+			if( (p.hashX==hashX && p.hashY == hashY) && 
+					(p.x == x || p.x.equals(x)) && 
+					(p.y == y || p.y.equals(y))){
+				if(pre==null)
+					tabY[indexY] = p.next;
+				else
+					pre.next = p.next;
+			
+				break;
+			}else
+				pre = p;
+			p=p.next;  
+		}
+		return p;	
+	}
+
+	@Override
+	public void clear() {
+		if(size!=0 && tableX!=null){
+			size=0;
+			sizeX = 0;
+			for(int i=0;i<tableX.length;i++){
+				tableX[i]=null;
+				statusY[i]=null;
+			}
+				
+		}
+	}
 
 	@Override
 	public boolean isEmpty() {

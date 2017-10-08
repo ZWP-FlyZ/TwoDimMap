@@ -33,7 +33,7 @@ public interface TwoDimMap<X,Y,V> {
 	
 	public Set<TwoDimKey<X,Y>> keySet();
 	
-	public Collection<TwoDimEntry<X,Y,V>> entrySet();
+	public Set<TwoDimEntry<X,Y,V>> entrySet();
 	
 	public boolean equals(Object o);
 	

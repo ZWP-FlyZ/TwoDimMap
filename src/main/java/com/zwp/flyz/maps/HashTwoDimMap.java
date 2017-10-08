@@ -1,7 +1,13 @@
 package com.zwp.flyz.maps;
 
 import java.io.Serializable;
+import java.util.AbstractCollection;
+import java.util.AbstractSet;
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 import com.zwp.flyz.abstractclass.AbstractTwoDimMap;
 import com.zwp.flyz.interfaces.TwoDimMap;
@@ -113,16 +119,27 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 	 */
 	transient int size;
 	
+	
+	/**
+	 * the number of times map modified
+	 */
+	transient int modCount;
+	
 	/**
 	 * the size and capacity of all y tables 
 	 */
 	transient StatusY[] statusY=null;
+	
+	
+	
+	transient Set<TwoDimEntry<X, Y, V>> entrySet;
 	
 	/**
 	 * the threshold of x and y
 	 */
 	 int thresholdX;
 
+	 
 	 
 	 final float loadFactorX;
 	 final float loadFactorY;
@@ -230,11 +247,8 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 	}
 	
 	
-	
-
 	@Override
 	public V remove(Object x, Object y) {
-		// TODO Auto-generated method stub
 		if(x==null||y==null) return null;
 		Node<X,Y,V> tmp = removeNode(hash(x),hash(y),x,y);
 		return tmp==null?null:tmp.value;
@@ -260,12 +274,15 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 				pre = p;
 			p=p.next;  
 		}
+		size--;
+		modCount++;
 		return p;	
 	}
 
 	@Override
 	public void clear() {
 		if(size!=0 && tableX!=null){
+			modCount++;
 			size=sizeX=0;
 			for(int i=0;i<tableX.length;i++){
 				tableX[i]=null;
@@ -345,6 +362,7 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 			p.value = v;
 			return ov;//return old value;
 		}
+		modCount++;
 		size++;
 		if( ++sy.sizeY > sy.thresholdY)
 			resizeY(indexX);
@@ -512,9 +530,179 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 	
 	
 	@Override
-	public Collection<TwoDimEntry<X, Y, V>> entrySet() {
+	public Collection<V> values() {
+		return values==null?(values=new Values()):values;
+	}
+
+	@Override
+	public Set<TwoDimKey<X, Y>> keySet() {
+		return keySet==null?(keySet):keySet;
+	}
+	
+	final class Values extends AbstractCollection<V>{
+
+		public final void clear() {
+			HashTwoDimMap.this.clear();
+		}
+
+		public final Iterator<V> iterator() {
+			return new ValueIterator();
+		}
+
+		public final int size() {
+			return size;
+		}
+				
+	}
+	
+	final class KeySet extends AbstractSet<TwoDimKey<X, Y>>{
+
+		public final Iterator<TwoDimKey<X, Y>> iterator() {
+			return new KeyIterator();
+		}
+
+		public final int size() {
+			return size;
+		}
+
+		public final  void clear() {
+			HashTwoDimMap.this.clear();
+		}
+		public final boolean remove(Object x,Object y) {
+			return removeNode(hash(x), hash(y), x, y)!=null;
+		}
+	}
+	
+	final class EntrySet extends AbstractSet<TwoDimEntry<X, Y, V>>{
+
+		public final Iterator<TwoDimEntry<X, Y, V>> iterator() {
+			return new EntryIterator();
+		}
+		public final  void clear() {
+			HashTwoDimMap.this.clear();
+		}
+		
+		public final int size() {
+			return size;
+		}
+		public final  boolean cotains(Object o){
+			if( (o instanceof TwoDimMap) )return false;
+			TwoDimEntry<?,?,?> e = (TwoDimEntry<?,?,?>)o;
+			Node<X,Y,V> n = getNode(hash(e.getX()),hash(e.getY()),e.getX(),e.getY());
+			
+			if(n==null) return false;
+			if(n.value==e.getValue()) return true;
+			if(n.value!=null && e.getValue()!=null 
+					&& n.value.equals(e.getValue())) return true;
+			else return false;
+		}
+		
+		public final boolean remove(Object x,Object y) {			
+			return removeNode(hash(x), hash(y), x, y)!=null;
+		}
+		
+	}
+
+	abstract class BaseIterator {
+		Node<X,Y,V> cur,next;
+		int indexX,indexY;
+		int bfModCot;
+		BaseIterator(){
+			Node<X,Y,V>[][] tabX= tableX;
+			Node<X,Y,V>[] tabY;
+			cur = next = null;
+			indexX = indexY =0;
+			bfModCot = modCount;
+			for(;indexX<tabX.length;indexX++){
+				if((tabY=tabX[indexX])!=null){
+					for(indexY=0;indexY<tabY.length;indexY++){
+						if((next=tabY[indexY])!=null) 
+							return;
+					}//end for Y
+				}//end if X
+			}//end for X
+		}
+		
+		public final boolean hasNext(){
+			return next!=null;
+		}
+		
+		final Node<X,Y,V> nextNode(){
+			Node<X,Y,V>[][] tabX = tableX;
+			Node<X,Y,V>[] tabY ;
+			Node<X,Y,V> tn = next;
+			if(modCount!= bfModCot)
+				throw new ConcurrentModificationException();
+			if(tn==null) 
+				throw new NoSuchElementException();
+			cur=next;
+			if((next=next.next)==null){
+				indexY++;
+				for(;indexX<tabX.length;++indexX,indexY=0){
+					if((tabY = tabX[indexX])!=null)
+						for(;indexY<tabY.length;indexY++)
+							if((next=tabY[indexY])!=null) return cur;
+				}//end for
+			}//end if
+			return cur;
+		}
+		
+		public final void remove(){
+			Node<X,Y,V> tn = cur;
+			if(tn==null) throw new IllegalStateException();
+			if(modCount!= bfModCot)
+				throw new ConcurrentModificationException();
+			removeNode(tn.hashX,tn.hashY,tn.x,tn.y);
+			cur=null;
+			bfModCot= modCount;
+		}
+		
+	}
+	
+	final class KeyIterator extends BaseIterator
+		implements Iterator<TwoDimKey<X, Y>>{
+		public final TwoDimKey<X, Y> next() {
+			Node<X,Y,V> n = nextNode();
+			return new TwoDimKeyImp<X, Y>(n.x,n.y);
+		}
+	}
+	
+	final class ValueIterator extends BaseIterator
+		implements Iterator<V>{
+		public final V next() {
+			return nextNode().value;
+		}
+	}
+	
+	final class EntryIterator extends BaseIterator
+		implements Iterator<TwoDimEntry<X, Y, V>>{
+		public final TwoDimEntry<X, Y, V> next() {
+			Node<X,Y,V> n = nextNode();
+			return  new TwoDimEntryImp<X, Y, V>(n.x, n.y,n.value);
+		}
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
 		// TODO Auto-generated method stub
-		return null;
+		return super.equals(obj);
+	}
+
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		// TODO Auto-generated method stub
+		return super.clone();
+	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return super.toString();
+	}
+
+	@Override
+	public Set<TwoDimEntry<X, Y, V>> entrySet() {	
+		return entrySet==null? (entrySet=new EntrySet()):entrySet;
 	}
 
 }

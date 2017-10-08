@@ -170,8 +170,8 @@ public abstract class AbstractTwoDimMap<X, Y, V> implements TwoDimMap<X, Y, V> {
 	/**
 	 * the template for keySet and value
 	 */
-    private transient volatile AbstractSet<TwoDimKey<X, Y>>  keySet;
-    private transient volatile Collection<V> values;
+	protected transient volatile AbstractSet<TwoDimKey<X, Y>>  keySet;
+    protected transient volatile Collection<V> values;
 	
 	public Collection<V> values() {
 		if(values==null){
@@ -239,7 +239,7 @@ public abstract class AbstractTwoDimMap<X, Y, V> implements TwoDimMap<X, Y, V> {
 		return keySet;
 	}
 	
-	public abstract Collection<TwoDimEntry<X, Y, V>> entrySet();
+	public abstract Set<TwoDimEntry<X, Y, V>> entrySet();
 
 	@Override
 	public int hashCode() {
@@ -301,7 +301,7 @@ public abstract class AbstractTwoDimMap<X, Y, V> implements TwoDimMap<X, Y, V> {
 	@Override
 	public String toString() {
 		Iterator<TwoDimEntry<X,Y,V>> iterator = entrySet().iterator();
-		if(iterator.hasNext()) return "{}";
+		if(!iterator.hasNext()) return "{}";
 		StringBuffer sb = new StringBuffer();
 		sb.append("{ ");
 		TwoDimEntry<X,Y,V> tde = null;
@@ -313,11 +313,12 @@ public abstract class AbstractTwoDimMap<X, Y, V> implements TwoDimMap<X, Y, V> {
 				append(tde.getY()).
 				append(")");
 			sb.append("->").append(tde.getValue());
-			sb.append(" ");
-			if(iterator.hasNext()){
+			
+			if(!iterator.hasNext()){
 				sb.append("}");
 				return sb.toString();
-			}	
+			}
+			sb.append(" | ");
 		}
 		
 	}
@@ -373,6 +374,18 @@ public abstract class AbstractTwoDimMap<X, Y, V> implements TwoDimMap<X, Y, V> {
 			V ov = this.v;
 			this.v = v;
 			return ov;
+		}
+		@Override
+		public String toString() {
+			StringBuffer sb = new StringBuffer();
+			sb.append("( ");
+			sb.append(x.toString());
+			sb.append(" , ");
+			sb.append(y.toString());
+			sb.append(" )-->( ");
+			sb.append(v.toString());
+			sb.append(" )");
+			return sb.toString();
 		}
 
 		

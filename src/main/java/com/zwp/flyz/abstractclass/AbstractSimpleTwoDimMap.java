@@ -1,5 +1,7 @@
 package com.zwp.flyz.abstractclass;
 
+import com.zwp.flyz.interfaces.SimpleTwoDimMap;
+
 /**
  * 
  * @author zwp-flyz
@@ -9,6 +11,6 @@ package com.zwp.flyz.abstractclass;
  * @param <V> the type of value
  */
 public abstract class AbstractSimpleTwoDimMap<K,V> 
-							extends AbstractTwoDimMap<K, K, V> {
+							extends AbstractTwoDimMap<K, K, V> implements SimpleTwoDimMap<K, V> {
 
 }

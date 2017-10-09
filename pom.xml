@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.zwp_flyz</groupId>
   <artifactId>TwoDimMap</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <name>TwoDimMap</name>
   <description>两个键到一个值的映射表</description>
   <dependencies>

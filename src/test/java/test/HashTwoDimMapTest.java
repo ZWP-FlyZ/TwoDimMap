@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.zwp.flyz.interfaces.TwoDimMap.TwoDimEntry;
+import com.zwp.flyz.interfaces.TwoDimMap.TwoDimKey;
 import com.zwp.flyz.maps.HashTwoDimMap;
 
 public class HashTwoDimMapTest {
@@ -27,7 +28,7 @@ public class HashTwoDimMapTest {
 		//fail("Not yet implemented");
 		map = new HashTwoDimMap<Integer,Integer,Integer>();
 		hMap = new HashMap<Integer,HashMap<Integer,Integer>>();
-		for(int i=0;i<16;i++){
+		for(int i=0;i<1600;i++){
 			//map.put(i+1, i, i);
 			map.put(i, i, i);
 			//map.put(i, i+1, i);
@@ -48,17 +49,24 @@ public class HashTwoDimMapTest {
 //		System.err.println(map.size());
 //		System.err.println(map.isContain(2, 2));
 		
-		Iterator<TwoDimEntry<Integer,Integer,Integer>> i = map.entrySet().iterator();
-		while(i.hasNext()){
-			System.err.println(i.next().toString());
+		Iterator<Integer> iv = map.values().iterator();
+		while(iv.hasNext()){
+			System.err.println(iv.next().toString());
 		}
+		
+		
+		Iterator<TwoDimKey<Integer,Integer>> ik = map.keySet().iterator();
+		while(ik.hasNext()){
+			System.err.println(ik.next().toString());
+		}
+		
 		
 		Iterator<TwoDimEntry<Integer,Integer,Integer>> i2 = map.entrySet().iterator();
 		while(i2.hasNext()){
 			System.err.println(i2.next().toString());
 		}
 		
-		System.err.println(map.toString());
+		//System.err.println(map.toString());
 		
 		
 	}

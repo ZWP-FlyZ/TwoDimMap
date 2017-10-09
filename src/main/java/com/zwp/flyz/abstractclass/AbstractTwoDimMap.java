@@ -340,6 +340,17 @@ public abstract class AbstractTwoDimMap<X, Y, V> implements TwoDimMap<X, Y, V> {
 		public Y getY() {
 			return y;
 		}
+		
+		@Override
+		public String toString() {
+			StringBuffer sb = new StringBuffer();
+			sb.append("( ");
+			sb.append(x.toString());
+			sb.append(" , ");
+			sb.append(y.toString());
+			sb.append(" )");
+			return sb.toString();
+		}
 	
 	}
 	

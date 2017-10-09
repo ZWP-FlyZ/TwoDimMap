@@ -536,7 +536,7 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 
 	@Override
 	public Set<TwoDimKey<X, Y>> keySet() {
-		return keySet==null?(keySet):keySet;
+		return keySet==null?(keySet=new KeySet()):keySet;
 	}
 	
 	final class Values extends AbstractCollection<V>{

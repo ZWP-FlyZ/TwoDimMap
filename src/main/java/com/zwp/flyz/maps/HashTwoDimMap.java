@@ -186,7 +186,8 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 	 * cal the hash
 	 */
 	static final int hash(Object o){
-		return o.hashCode();
+		int h;
+		return o==null?0:(h=o.hashCode()) ^ (h>>>16);
 	}
 	
 	/**
@@ -429,22 +430,25 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 			System.arraycopy(oStatuY, 0, nStatusY, 0, oStatuY.length);//copy the status
 			System.arraycopy(oTableX, 0, nTableX, 0, oTableX.length);//copy the tabx
 			Node<X,Y,V>[] ys ;
-			Node<X,Y,V> p,pre = null;
+			Node<X,Y,V> p,pre = null,next=null;;
 			for(int i=0;i<oCapX;i++){
 				if((ys=nTableX[i])==null) continue;
 					for(int j=0;j<ys.length;j++){
 						if((p=ys[j])==null) continue;
+						pre=null;
 						while(p!=null){
+							next = p.next;
 							if((p.hashX&oCapX)!=0){
 								if(pre==null)
 									ys[j]=p.next;
 								else
 									pre.next = p.next;
 								nStatusY[i].sizeY--;
+								p.next=null;
 								setNodeY(i+oCapX,p);
 							}else
 								pre = p;
-							p = p.next;
+							p = next;
 						}//end while
 					}//end for j
 			}//end for i
@@ -630,15 +634,14 @@ public class HashTwoDimMap<X,Y,V> extends AbstractTwoDimMap<X, Y, V>
 		final Node<X,Y,V> nextNode(){
 			Node<X,Y,V>[][] tabX = tableX;
 			Node<X,Y,V>[] tabY ;
-			Node<X,Y,V> tn = next;
 			if(modCount!= bfModCot)
 				throw new ConcurrentModificationException();
-			if(tn==null) 
+			if(next==null) 
 				throw new NoSuchElementException();
 			cur=next;
 			if((next=next.next)==null){
 				indexY++;
-				for(;indexX<tabX.length;++indexX,indexY=0){
+				for(;indexX<tabX.length;indexX++,indexY=0){
 					if((tabY = tabX[indexX])!=null)
 						for(;indexY<tabY.length;indexY++)
 							if((next=tabY[indexY])!=null) return cur;
